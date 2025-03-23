@@ -1,6 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-const schema = new mongoose.Schema(
+// Define the interface for the Product document
+interface IProduct extends Document {
+  name: string;
+  photos: {
+    public_id: string;
+    url: string;
+  }[];
+  price: number;
+  stock: number;
+  category: string;
+  description: string;
+  ratings: number;
+  numOfReviews: number;
+}
+
+// Define the schema for the product
+const productSchema = new Schema<IProduct>(
   {
     name: {
       type: String,
@@ -31,17 +47,14 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter Category"],
       trim: true,
     },
-
     description: {
       type: String,
       required: [true, "Please enter Description"],
     },
-
     ratings: {
       type: Number,
       default: 0,
     },
-
     numOfReviews: {
       type: Number,
       default: 0,
@@ -52,4 +65,5 @@ const schema = new mongoose.Schema(
   }
 );
 
-export const Product = mongoose.model("Product", schema);
+// Create the model with the interface
+export const Product = mongoose.model<IProduct>("Product", productSchema);
