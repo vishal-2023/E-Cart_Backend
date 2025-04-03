@@ -1,13 +1,4 @@
 {
-    "builds": [
-      {
-        "src": "src/app.ts",
-        "use": "@vercel/node",
-        "config": {
-          "zeroConfig": true
-        }
-      }
-    ],
     "functions": {
       "api/**/*.ts": {
         "runtime": "node16.x"
