@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import { redis } from "../app.js";
+// import { //  $0 } from "../app.js";
 import { Product } from "../models/product.js";
 import { Review } from "../models/review.js";
 cloudinary.config({
@@ -36,39 +36,46 @@ export const deleteMediaFromCloudinary = async (publicIds) => {
     });
     await Promise.all(promises);
 };
-export const invalidateCache = async ({ product, order, admin, review, userId, orderId, productId, }) => {
-    if (review) {
-        await redis.del([`reviews-${productId}`]);
-    }
-    if (product) {
-        const productKeys = [
-            "latest-products",
-            "categories",
-            "all-products",
-        ];
-        if (typeof productId === "string")
-            productKeys.push(`product-${productId}`);
-        if (typeof productId === "object")
-            productId.forEach((i) => productKeys.push(`product-${i}`));
-        await redis.del(productKeys);
-    }
-    if (order) {
-        const ordersKeys = [
-            "all-orders",
-            `my-orders-${userId}`,
-            `order-${orderId}`,
-        ];
-        await redis.del(ordersKeys);
-    }
-    if (admin) {
-        await redis.del([
-            "admin-stats",
-            "admin-pie-charts",
-            "admin-bar-charts",
-            "admin-line-charts",
-        ]);
-    }
-};
+// export const invalidateCache = async ({
+//   product,
+//   order,
+//   admin,
+//   review,
+//   userId,
+//   orderId,
+//   productId,
+// }: InvalidateCacheProps) => {
+//   if (review) {
+//     await //  $0.del([`reviews-${productId}`]);
+//   }
+//   if (product) {
+//     const productKeys: string[] = [
+//       "latest-products",
+//       "categories",
+//       "all-products",
+//     ];
+//     if (typeof productId === "string") productKeys.push(`product-${productId}`);
+//     if (typeof productId === "object")
+//       productId.forEach((i) => productKeys.push(`product-${i}`));
+//     await //  $0.del(productKeys);
+//   }
+//   if (order) {
+//     const ordersKeys: string[] = [
+//       "all-orders",
+//       `my-orders-${userId}`,
+//       `order-${orderId}`,
+//     ];
+//     await //  $0.del(ordersKeys);
+//   }
+//   if (admin) {
+//     await //  $0.del([
+//       "admin-stats",
+//       "admin-pie-charts",
+//       "admin-bar-charts",
+//       "admin-line-charts",
+//     ]);
+//   }
+// };
 export const reduceStock = async (orderItems) => {
     for (let i = 0; i < orderItems.length; i++) {
         const order = orderItems[i];

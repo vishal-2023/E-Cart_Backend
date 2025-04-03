@@ -1,14 +1,14 @@
-import { Redis } from "ioredis";
+// import { //  $0 } from "io//  $0";
 import mongoose from "mongoose";
 
-export const connectRedis = (redisURI: string) => {
-    const redis = new Redis(redisURI);
+// export const connect//  $0 = (//  $0URI: string) => {
+//     const //  $0 = new //  $0(//  $0URI);
 
-    redis.on("connect", () => console.log("Redis Connected"));
-    redis.on("error", (e) => console.log(e));
+//     //  $0.on("connect", () => console.log("//  $0 Connected"));
+//     //  $0.on("error", (e) => console.log(e));
 
-    return redis;
-};
+//     return //  $0;
+// };
 
 export const connectDB = () => {
     // console.log("firstooo",uri)

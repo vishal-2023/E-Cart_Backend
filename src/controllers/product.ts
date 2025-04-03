@@ -2,13 +2,13 @@ import { Request } from "express";
 import { BaseQuery, NewProductRequestBody, SearchRequestQuery } from "../types/types.js";
 import { TryCatch } from "../middlewares/error.js";
 import ErrorHandler from "../utils/utility-class.js";
-import { deleteMediaFromCloudinary, findAverageRatings, invalidateCache, uploadMediaToCloudinary } from "../utils/cloudinary.js";
+import { deleteMediaFromCloudinary, findAverageRatings, uploadMediaToCloudinary } from "../utils/cloudinary.js";
 import { Product } from "../models/product.js";
-import { redis } from "../app.js";
+// import { //  $0 } from "../app.js";
 import { Review } from "../models/review.js";
 import { User } from "../models/user.js";
 
-const redisTTL = Number(process.env.REDIS_TTL) || 3*60*60 ;
+// const //  $0TTL = Number(process.env.//  $0_TTL) || 3*60*60 ;
 
 export const newProduct = TryCatch(
     async (req: Request<{}, {}, NewProductRequestBody>, res, next) => {
@@ -46,7 +46,7 @@ export const newProduct = TryCatch(
             photos: photosURL,
         });
 
-        await invalidateCache({ product: true, admin: true });
+        // await invalidateCache({ product: true, admin: true });
 
         return res.status(201).json({
             success: true,
@@ -59,13 +59,13 @@ export const newProduct = TryCatch(
 export const getlatestProducts = TryCatch(async (req, res, next) => {
     let products;
 
-    products = await redis.get("latest-products");
+    // products = await //  $0.get("latest-products");
 
     if (products) products = JSON.parse(products);
     else {
         products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
-        console.log("000",redisTTL)
-        await redis.setex("latest-products", redisTTL, JSON.stringify(products));
+        // console.log("000",//  $0TTL)
+        // await //  $0.setex("latest-products", //  $0TTL, JSON.stringify(products));
     }
 
     return res.status(200).json({
@@ -79,12 +79,12 @@ export const getlatestProducts = TryCatch(async (req, res, next) => {
 export const getAllCategories = TryCatch(async (req, res, next) => {
     let categories;
 
-    categories = await redis.get("categories");
+    // categories = await //  $0.get("categories");
 
     if (categories) categories = JSON.parse(categories);
     else {
         categories = await Product.distinct("category");
-        await redis.setex("categories", 3*60*60, JSON.stringify(categories));
+        // await //  $0.setex("categories", 3*60*60, JSON.stringify(categories));
     }
 
     return res.status(200).json({
@@ -97,12 +97,12 @@ export const getAllCategories = TryCatch(async (req, res, next) => {
 export const getAdminProducts = TryCatch(async (req, res, next) => {
     let products;
 
-    products = await redis.get("all-products");
+    // products = await //  $0.get("all-products");
 
     if (products) products = JSON.parse(products);
     else {
         products = await Product.find({});
-        await redis.setex("all-products", redisTTL, JSON.stringify(products));
+        // await //  $0.setex("all-products", //  $0TTL, JSON.stringify(products));
     }
 
     return res.status(200).json({
@@ -117,7 +117,7 @@ export const getSingleProduct = TryCatch(async (req, res, next) => {
     // console.log("ooooo",id)
     const key = `product-${id}`;
 
-    product = await redis.get(key);
+    // product = await //  $0.get(key);
     if (product) product = JSON.parse(product);
     else {
         product = await Product.findById({_id:id});
@@ -125,7 +125,7 @@ export const getSingleProduct = TryCatch(async (req, res, next) => {
 
         if (!product) return next(new ErrorHandler("Product Not Found", 404));
 
-        await redis.setex(key, 3*60*60, JSON.stringify(product));
+        // await //  $0.setex(key, 3*60*60, JSON.stringify(product));
     }
 
 
@@ -163,11 +163,11 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 
     await product.save();
 
-    await invalidateCache({
-        product: true,
-        productId: String(product._id),
-        admin: true,
-    });
+    // await invalidateCache({
+    //     product: true,
+    //     productId: String(product._id),
+    //     admin: true,
+    // });
 
     return res.status(200).json({
         success: true,
@@ -186,11 +186,11 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
 
     await product.deleteOne();
 
-    await invalidateCache({
-        product: true,
-        productId: String(product._id),
-        admin: true,
-    });
+    // await invalidateCache({
+    //     product: true,
+    //     productId: String(product._id),
+    //     admin: true,
+    // });
 
     return res.status(200).json({
         success: true,
@@ -209,12 +209,8 @@ export const getAllProducts = TryCatch(
         let products;
         let totalPage;
 
-        const cachedData = await redis.get(key);
-        if (cachedData) {
-            const data = JSON.parse(cachedData);
-            totalPage = data.totalPage;
-            products = data.products;
-        } else {
+        // const cachedData = await //  $0.get(key);
+        
             // 1,2,3,4,5,6,7,8
             // 9,10,11,12,13,14,15,16
             // 17,18,19,20,21,22,23,24
@@ -249,8 +245,7 @@ export const getAllProducts = TryCatch(
             products = productsFetched;
             totalPage = Math.ceil(filteredOnlyProduct.length / limit);
 
-            await redis.setex(key, 30, JSON.stringify({ products, totalPage }));
-        }
+            // await //  $0.setex(key, 30, JSON.stringify({ products, totalPage }));
 
         return res.status(200).json({
             success: true,
@@ -265,7 +260,7 @@ export const allReviewsOfProduct = TryCatch(async (req, res, next) => {
     let reviews;
     const key = `reviews-${req.params.id}`;
 
-    reviews = await redis.get(key);
+    // reviews = await //  $0.get(key);
 
     if (reviews) reviews = JSON.parse(reviews);
     else {
@@ -275,7 +270,7 @@ export const allReviewsOfProduct = TryCatch(async (req, res, next) => {
             .populate("user", "name photo")
             .sort({ updatedAt: -1 });
 
-        await redis.setex(key, Number(redisTTL), JSON.stringify(reviews));
+        // await //  $0.setex(key, Number(//  $0TTL), JSON.stringify(reviews));
     }
 
     return res.status(200).json({
@@ -320,12 +315,12 @@ export const newReview = TryCatch(async (req, res, next) => {
 
     await product.save();
 
-    await invalidateCache({
-        product: true,
-        productId: String(product._id),
-        admin: true,
-        review: true,
-    });
+    // await invalidateCache({
+    //     product: true,
+    //     productId: String(product._id),
+    //     admin: true,
+    //     review: true,
+    // });
 
     return res.status(alreadyReviewed ? 200 : 201).json({
         success: true,
@@ -358,11 +353,11 @@ export const deleteReview = TryCatch(async (req, res, next) => {
 
     await product.save();
 
-    await invalidateCache({
-        product: true,
-        productId: String(product._id),
-        admin: true,
-    });
+    // await invalidateCache({
+    //     product: true,
+    //     productId: String(product._id),
+    //     admin: true,
+    // });
 
     return res.status(200).json({
         success: true,

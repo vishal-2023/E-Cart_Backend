@@ -3,7 +3,7 @@ import userRoutes from './routes/user.js';
 import errorMiddleWare from './middlewares/error.js';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-import { connectDB, connectRedis } from './utils/connection.js';
+import { connectDB } from './utils/connection.js';
 import productRoute from "./routes/product.js";
 import Stripe from "stripe";
 import orderRoute from "./routes/order.js";
@@ -17,9 +17,9 @@ const port = process.env.PORT;
 const app = express();
 app.use(express.json());
 connectDB();
-const redisURI = process.env.REDIS_URI || "";
-export const redisTTL = Number(process.env.REDIS_TTL) || 3 * 60 * 60;
-export const redis = connectRedis(redisURI);
+// const //  $0URI = process.env.//  $0_URI || "";
+// export const //  $0TTL = Number(process.env.//  $0_TTL) || 3*60*60 ;
+// export const //  $0 = connect//  $0(//  $0URI);
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
