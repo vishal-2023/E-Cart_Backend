@@ -27,7 +27,7 @@ connectDB();
 
 
 const redisURI = process.env.REDIS_URI || "";
-export const redisTTL = process.env.REDIS_TTL || 60 * 60 * 4;
+export const redisTTL = Number(process.env.REDIS_TTL) || 3*60*60 ;
 
 
 export const redis = connectRedis(redisURI);

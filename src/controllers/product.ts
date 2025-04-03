@@ -4,13 +4,22 @@ import { TryCatch } from "../middlewares/error.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { deleteMediaFromCloudinary, findAverageRatings, invalidateCache, uploadMediaToCloudinary } from "../utils/cloudinary.js";
 import { Product } from "../models/product.js";
-import { redis, redisTTL } from "../app.js";
+import { redis } from "../app.js";
 import { Review } from "../models/review.js";
 import { User } from "../models/user.js";
 
+const redisTTL = Number(process.env.REDIS_TTL) || 3*60*60 ;
+
 export const newProduct = TryCatch(
     async (req: Request<{}, {}, NewProductRequestBody>, res, next) => {
-        const { name, price, stock, category, description } = req.body;
+        const {productData} = req.body
+
+        if (!productData) return next(new ErrorHandler("Product data is missing", 400));
+
+        const product = JSON.parse(`${productData}`); 
+
+        const { name, price, stock, category, description } = product;
+
         const photos = req.files as Express.Multer.File[] | undefined;
 
         if (!photos) return next(new ErrorHandler("Please add Photo", 400));
@@ -55,6 +64,7 @@ export const getlatestProducts = TryCatch(async (req, res, next) => {
     if (products) products = JSON.parse(products);
     else {
         products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+        console.log("000",redisTTL)
         await redis.setex("latest-products", redisTTL, JSON.stringify(products));
     }
 
@@ -74,7 +84,7 @@ export const getAllCategories = TryCatch(async (req, res, next) => {
     if (categories) categories = JSON.parse(categories);
     else {
         categories = await Product.distinct("category");
-        await redis.setex("categories", redisTTL, JSON.stringify(categories));
+        await redis.setex("categories", 3*60*60, JSON.stringify(categories));
     }
 
     return res.status(200).json({
@@ -103,17 +113,21 @@ export const getAdminProducts = TryCatch(async (req, res, next) => {
 
 export const getSingleProduct = TryCatch(async (req, res, next) => {
     let product;
-    const id = req.params.id;
+    const {id} = req.params
+    // console.log("ooooo",id)
     const key = `product-${id}`;
 
     product = await redis.get(key);
     if (product) product = JSON.parse(product);
     else {
-        product = await Product.findById(id);
+        product = await Product.findById({_id:id});
+    // console.log("mmmm",product)
+
         if (!product) return next(new ErrorHandler("Product Not Found", 404));
 
-        await redis.setex(key, redisTTL, JSON.stringify(product));
+        await redis.setex(key, 3*60*60, JSON.stringify(product));
     }
+
 
     return res.status(200).json({
         success: true,
@@ -126,7 +140,7 @@ export const updateProduct = TryCatch(async (req, res, next) => {
     const { name, price, stock, category, description } = req.body;
     const photos = req.files as Express.Multer.File[] | undefined;
 
-    const product = await Product.findById(id);
+    const product = await Product.findById({_id:id});
 
     if (!product) return next(new ErrorHandler("Product Not Found", 404));
 
@@ -163,7 +177,7 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 
 
 export const deleteProduct = TryCatch(async (req, res, next) => {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById({_id:req.params.id});
     if (!product) return next(new ErrorHandler("Product Not Found", 404));
 
     const ids = product.photos.map((photo) => photo.public_id);
@@ -261,7 +275,7 @@ export const allReviewsOfProduct = TryCatch(async (req, res, next) => {
             .populate("user", "name photo")
             .sort({ updatedAt: -1 });
 
-        await redis.setex(key, redisTTL, JSON.stringify(reviews));
+        await redis.setex(key, Number(redisTTL), JSON.stringify(reviews));
     }
 
     return res.status(200).json({

@@ -4,6 +4,7 @@ import { ControllerType } from "../types/types.js";
 
 
   const errorMiddleWare = (err:ErrorHandler,req:Request,res:Response,next:NextFunction) => {
+    console.log("err",err)
     err.message ||= "Internal Server Error";
     err.statusCode ||= 500;
 

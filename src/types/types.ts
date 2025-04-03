@@ -13,11 +13,14 @@ export interface NewUserRequestBody{
 export type ControllerType = (req: Request, res: Response, next: NextFunction) => Promise<any>
 
 export interface NewProductRequestBody{
+  productData:{
     name:string,
     price:number,
     stock:number,
     category:string,
     description:string
+  }
+  file?: Express.Multer.File;
 }
 
 
