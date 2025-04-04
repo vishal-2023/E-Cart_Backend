@@ -25,7 +25,7 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
-console.log("first");
+// console.log("first");
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order", orderRoute);
