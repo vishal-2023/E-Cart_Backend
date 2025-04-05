@@ -8,6 +8,7 @@ import productRoute from "./routes/product.js";
 import Stripe from "stripe";
 import orderRoute from "./routes/order.js";
 import paymentRoute from "./routes/payment.js";
+import cartRoutes from './routes/cart.js';
 dotenv.config();
 const stripeKey = process.env.STRIPE_KEY || "";
 export const stripe = new Stripe(stripeKey, {
@@ -25,11 +26,12 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
-console.log("first");
+// console.log("first")
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order", orderRoute);
 app.use("/api/v1/payment", paymentRoute);
+app.use('/api/v1/cart', cartRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use((err, req, res, next) => {
     errorMiddleWare(err, req, res, next);

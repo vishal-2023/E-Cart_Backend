@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 import { User } from "../models/user.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { TryCatch } from "./error.js";
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 
 export const adminOnly = TryCatch(async (req, res, next) => {
@@ -21,3 +26,21 @@ export const adminOnly = TryCatch(async (req, res, next) => {
   
     next();
   });
+
+  export const userOnly = TryCatch(async(req:any,res,next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if(!token){
+      return next(new ErrorHandler("Authorization token required", 401));
+    }
+    const decoded= jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string, name: string };
+    const user = await User.findById(decoded?.userId as string);
+
+    if(!user){
+      return next(new ErrorHandler("Access Denied", 403));
+    }
+
+    req.user = user;
+    next();
+
+  })

@@ -41,7 +41,7 @@ const schema = new mongoose.Schema({
     },
     discount: {
         type: Number,
-        required: true,
+        // required: true,
     },
     total: {
         type: Number,
