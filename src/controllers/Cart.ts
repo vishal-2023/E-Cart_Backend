@@ -107,7 +107,18 @@ export const deleteCartItem = TryCatch(
         if(!cart){
             return next(new ErrorHandler("Cart Not Found", 404));
         }
-        cart.items.pull(req.params.itemId);
+        // console.log("oooo",req.params.itemId)
+        // console.log("caar",cart)
+        // cart.items.pull(req.params.itemId);
+         // Find the index of the item to delete by matching the product ID
+         const itemIndex = cart.items.findIndex(item => item.product.toString() === req.params.itemId);
+
+         if (itemIndex === -1) {
+             return next(new ErrorHandler("Item not found in cart", 404));
+         }
+ 
+         // Pull the item from the cart's items array
+         cart.items.splice(itemIndex, 1);
         await cart.save();
         return res.status(200).json({
             status:true,
